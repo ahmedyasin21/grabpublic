@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load mptt_tags %}
+{% load static %}
+<div class="jumbotron" style="background:darken;">
+<h1>Welcome to grabPublic site</h1>
+<h2><a href="{% url 'profiles:detail' username=blog.username.user %}"><img src="{{ blog.username.avatar.url }}" alt="No avatar found" height="50px" width="50px" style="border-radius: 25px;"></a><a href="{% url 'profiles:detail' username=blog.username.user %}" style="margin-left: 20px;">@{{ blog.username }}</a></h2>
+<p style="font-size: 2.5em;">Title :{{blog.title}}</p>
+
+<p style="text-align: center;"><img src="{{ blog.image_data.url }}" width = "50%"><p>
+<P> {{safe|linebreaks}}</p>
+<p><strong>body </strong>{{blog.body|linebreaks}}</p>
+<p style="text-align: right;"><strong>Created date : </strong>{{blog.create_date|date:'d-m-Y'}}</p>
+
+        <div class="pr-2">
+          <span class="" id="fan_count">{{blog.fans.count}}</span>
+          <button class="btn btn-link text-dark p-0 border-0 btn-outline-light" id="fan-button" value="{{blog.id}}">{% csrf_token %}
+           <i onclick="myFun(this)" class="fa fa-thumbs-up"></i>
+          </button>
+        </div>
+       
+
+
+{% if owner %}
+<p style="text-align-last: left;"><span style="text-align: left;"><a class= "btn btn-success" href="{% url 'blogs:update' pk=blog.pk slug=blog.slug %}"> <strong >Edit</strong></a></span>
+<span ><a class= "btn btn-warning" href="{% url 'blogs:blog_remove' pk=blog.pk slug=blog.slug %}"> <strong >Delete</strong></a></span></p>
+{% endif %}
+
+<div id="blog_id" blog-id="{{blog.pk}}" blog-slug="{{blog.slug}}">    
+<div class='col-md-12'>
+<h2>{{blog.blog_comments.count}} comment{{blog.blog_comments.count|pluralize}}
+<hr>
+</div>
+</div>  
+
+<h1>{{blog.pk}}</h1>
+
+
+<div class="container">
+    <div class="infinite-container">
+        {% recursetree allcomments %}
+          <div class="infinite-item">
+            <blockquote id="{{node.id}}" class="blockquote">
+ {% comment %} <img src="https://images.unsplash.com/photo-1494548162494-384bba4ab999?ixlib=rb-1.2.1&w=1000&q=80" alt="alternatetext">   {% endcomment %}
+            <p class="mb-0">{{node.body|linebreaks}}</p>
+            <footer class="blockquote-footer">by <cite title="Source Title">{{node.author}}</cite></footer>
+            </blockquote>
+            <div id="blog_id" blog-id="{{blog.pk}}" blog-slug="{{blog.slug}}">    
+            {% if node.level < 3 %} 
+            <button class='btn btn-success' onclick="myFunction({{node.id}})">Reply</button>
+            {% endif %}
+            </div>  
+            {% if node.author|stringformat:"s" == user.get_username  %}
+            <button class="btn btn-secondary btn-sm mr-2" onclick="deleteComment({{ node.id }})">Delete</button>
+            {% endif %}
+            {% if not node.is_leaf_node %}
+            <div class="pl-2 pl-md-5">
+                {{children}}
+            </div>
+            {% endif %}
+          </div>
+        {% endrecursetree %}
+    </div>
+          {% if allcomments.has_next %}
+          <a class="infinite-more-link" href="?page={{allcomments.next_page_number}}"></a>
+         
+          <div class="d-flex justify-content-center" style="display:none;">
+              <div class="spinner-border" role="status">
+                      <span class="sr-only">Loading...</span>
+                </div>
+          </div>
+           {% endif %}
+  </div>
+  
+<h2>Make a new comment</h2>
+
+
+<form id='commentform' class='commentform' method='POST'>
+{% csrf_token %}
+{% with allcomments as total_comments %}
+<p>{{ total_comments }} comment{{total_comments|pluralize}}</p>
+{% endwith %}
+
+<select name='blog' class='d-none' id='id_blog'>
+  <option value="{{ blog.id }}" selected="{{ blog.id }}"></option>
+</select>
+
+<label class='small font-weight-bold'>{{comment_form.parent.label}}</label>
+{{comment_form.parent}}
+<div class='d-flex'>
+<img id='avatar_comment' class='avatar_comment align-self-center' src="{{request.user.userprofile.avatar.url}}">
+{{comment_form.body }}
+</div>
+<div class='d-flex flex-row-reverse'>
+<button type='submit' class='newcomment btn btn-primary' value='commentform' id='newcomment'>Submit</button>
+</div>
+</form>
+
+<script>
+  //Comments
+  
+  $(document).on('click', '#newcomment, #newcommentinner', function (e) {
+    e.preventDefault();
+
+    var button = $(this).attr("value");
+    var blog_id =$('#blog_id').attr('blog-id');
+    var blog_slug = $('#blog_id').attr('blog-slug');
+    console.log(blog_id,'blogid')
+    var placement = "commentform"
+    if (button == "newcommentform") {
+      var placement = "newcommentform"
+    }
+ 
+    $.ajax({
+      type: 'POST',
+      url: '{% url "blogs:addcomment" %}',
+      data: $("#" + button).serialize() + "&blog_id="+blog_id + "&blog_slug="+blog_slug,
+      cache: false,
+      error: console.log('blog_id' + blog_id),
+      success: function (json) {
+        console.log(json)
+
+        $('<div id="" class="my-2 p-2" style="border: 1px solid grey"> \
+          <div class="d-flex justify-content-between">By ' + json['user'] + '<div></div>Posted: Just now!</div> \
+          <div>' + json['result2'] + '</div> \
+          <hr> \
+          </div>').insertBefore('#' + placement);
+
+        $('.commentform').trigger("reset");
+        formExit()
+      },
+      error: function (xhr, errmsg, err) {
+      }
+    });
+  })
+
+function formExit() {
+    document.getElementById("newcommentform").remove();
+  }
+
+function myFunction(id) {
+    if (document.contains(document.getElementById("newcommentform"))) {
+      document.getElementById("newcommentform").remove();
+    }
+    var blog_id =$('#blog_id').attr('blog-id');
+    var imgFullURL= $('#avatar_comment').attr('src');
+    var d1 = document.getElementById(id);
+    console.log(d1,'show please')
+    d1.insertAdjacentHTML('afterend',
+      '<form id="newcommentform" class="commentform" method="post"> \
+        {% csrf_token %} \
+        <select name="blog" class="d-none" id="id_post"> \
+          <option value="' + blog_id +'" selected="' + blog_id + '"></option> \
+        </select> <label class="small font-weight-bold"></label> \
+        <select name="parent" class="d-none" id="id_parent"> \
+          <option value="' + id + '" selected="' + id + '"></option> \
+        </select> \
+         <div class="d-flex"> \
+          <img class="avatar_comment align-self-center" src="' + imgFullURL + '"> \
+          <textarea name="body" cols="40" rows="1" class="ml-3 mb-3 form-control border-0 comment-add rounded-0" placeholder="Add a public comment" required="" id="id_content"></textarea> \
+        </div> \
+        <div class="d-flex flex-row-reverse"> \
+        <button type="button" class="btn btn-outline-secondary" onclick="formExit()">Close</button> \
+          <button value="newcommentform" id="newcommentinner" type="submit" class="mr-1 newcomment btn btn-primary ">Submit</button> \
+        </div> \
+      </form>'
+    );
+  }
+
+function formExit() {
+    document.getElementById("newcommentform").remove();
+  }
+
+function deleteComment(id) {
+    var blog_id =$('#blog_id').attr('blog-id');
+    var blog_slug = $('#blog_id').attr('blog-slug');
+    console.log(id)
+    $.ajax({
+      type: 'POST',
+      url: '{% url "blogs:addcomment" %}',
+      data: {
+        nodeid: id,
+        blog_id:blog_id,
+        blog_slug:blog_slug,
+        action: 'delete',
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+      },
+      success: function (json) {
+        $("#" + json['remove']).remove();
+      },
+      error: function (xhr, errmsg, err) {}
+    });
+  }
+
+  $('#myForm').trigger("reset");
+</script>
+
+{% comment %} comment infinit scroll down {% endcomment %}
+    <script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'js/infinite.min.js' %}"></script>
+    <script>
+    var infinite = new Waypoint.Infinite({
+        element: $('.infinite-container')[0],
+        handler: function(direction) {
+
+    },
+    offset: 'bottom-in-view',
+
+    onBeforePageLoad: function () {
+    $('.spinner-border').show();
+    },
+    onAfterPageLoad: function () {
+    $('.spinner-border').hide();
+    }
+
+    });
+
+    </script>
+
+<script>
+
+
+  $(document).on('click', '#fan-button', function (e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: '{% url "blogs:fan" %}',
+      data: {
+        blogid: $('#fan-button').val(),
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+        action: 'post'
+      },
+      success: function (json) {
+        document.getElementById("fan_count").innerHTML = json['result']
+      },
+      error: function (xhr, errmsg, err) {
+      }
+    });
+  })
+</script>
+
+{% endblock content %}

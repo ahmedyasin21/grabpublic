@@ -1,0 +1,5 @@
+<form class='form' method='POST' action="{% url 'profiles:close_friend_toggle'%}">
+{% csrf_token %}
+<input type='hidden' name='user' value="{% if user %}{{ user}}{% else %}hello{% endif %}">
+<button class='btn {% if is_close_friend %}btn-warning{% else %}btn-primary{% endif %}'>{% if is_close_friend %}Remove close friend {% else %}Close friend{% endif %}</button>
+</form>

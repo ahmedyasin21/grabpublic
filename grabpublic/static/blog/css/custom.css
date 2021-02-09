@@ -1,0 +1,22 @@
+/* your styles go here */
+.blogtitle:focus{
+    font-size:40px;
+    text-align: left;
+    border-top: 0px;
+    border-right: 0px;
+    border-left: 0px;
+    border-bottom-style: groove;
+    outline:none;
+}
+
+
+
+.blogbody{
+    font-size:20px;
+    text-align: left;
+    border-top: 0px;
+    border-right: 0px;
+    border-left: 0px;
+    border-bottom-style: groove;
+    outline:none;
+}

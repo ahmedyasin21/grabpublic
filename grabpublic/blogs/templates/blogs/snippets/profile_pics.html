@@ -1,0 +1,96 @@
+	 <!-- ==============================================
+	 News Feed Section
+	 =============================================== --> 
+	  <section class="profile">
+	  <div class="container-fluid">
+	   <div class="row">
+	   
+	   <div class="col-lg-3">
+		 <div class="profilebox hidden-xs hidden-sm" 
+		   style="background: linear-gradient( rgba(34,34,34,0.45), rgba(34,34,34,0.45)), url('{{user.userprofile.background.url}}') no-repeat;
+		          background-size: cover;
+                  background-position: center center;
+                  -webkit-background-size: cover;
+                  -moz-background-size: cover;
+                  -o-background-size: cover;">		  
+		 </div>
+		 <div class="profilebox hidden-xs hidden-sm" 
+		   style="background: linear-gradient( rgba(34,34,34,0.45), rgba(34,34,34,0.45)), url('{{user.userprofile.background_2.url}}') no-repeat;
+		          background-size: cover;
+                  background-position: center center;
+                  -webkit-background-size: cover;
+                  -moz-background-size: cover;
+                  -o-background-size: cover;">		  
+		 </div>
+	   </div>
+	   <div class="col-lg-6">
+		 <div class="profilebox-large hidden-xs hidden-sm" 
+		   style="background: linear-gradient( rgba(34,34,34,0.45), rgba(34,34,34,0.45)), url('{{user.userprofile.background_3.url}}') no-repeat;
+		          background-size: cover;
+                  background-position: center center;
+                  -webkit-background-size: cover;
+                  -moz-background-size: cover;
+                  -o-background-size: cover;">		  
+		 </div>
+	   </div>
+	   <div class="col-lg-3">
+		 <div class="profilebox hidden-xs hidden-sm" 
+		   style="background: linear-gradient( rgba(34,34,34,0.45), rgba(34,34,34,0.45)), url('{{user.userprofile.background_4.url}}') no-repeat;
+		          background-size: cover;
+                  background-position: center center;
+                  -webkit-background-size: cover;
+                  -moz-background-size: cover;
+                  -o-background-size: cover;">		  
+		 </div>
+		 <div class="profilebox" 
+		   style="background: linear-gradient( rgba(34,34,34,0.6), rgba(34,34,34,0.6)), url('{{user.userprofile.background_5.url}}') no-repeat;
+		          background-size: cover;
+                  background-position: center center;
+                  -webkit-background-size: cover;
+                  -moz-background-size: cover;
+                  -o-background-size: cover;">		  
+		 </div>
+	   </div>
+		
+       </div><!--/ row-->	
+	  </div><!--/ container -->
+	 </section><!--/ profile -->
+  
+	 <!-- ==============================================
+	 User Profile Section
+	 =============================================== --> 
+	 <section class="user-profile">
+	  <div class="container-fluid">
+	   <div class="row">
+	   
+	    <div class="col-lg-12">
+		   <div class="post-content">
+		    <div class="author-post text-center">
+		     <a href="#"><img class="img-fluid img-circle" src="{{user.userprofile.avatar.url}}" alt="Image"></a>
+		    </div><!-- /author -->
+		   </div><!-- /.post-content -->		
+		</div><!-- /col-sm-12 -->
+		
+       </div><!--/ row-->	
+	  </div><!--/ container -->
+	 </section><!--/ profile -->
+
+	 <!-- ==============================================
+	 Home Menu Section
+	 =============================================== -->	
+     <section class="home-menu">
+      <div class="container">
+       <div class="row">
+
+        <div class="menu-category">
+         <ul class="menu">
+          <li class="current-menu-item"><a href="{%url 'profiles:final_detail' username=request.user %}">Posts <span>{{posts.count}}</span></a></li>
+          <li><a href="{% url 'profiles:followers' username=user.username%}">Followers <span>{{user.is_following.count}}</span></a></li>
+          <li><a href="{% url 'profiles:followings' username=user.username%}">Following <span>{{user.userprofile.follower.count}}</span></a></li>
+		  <li><a href="{% url 'profiles:rank_detail' username=user.username %}">Ranks <span>{{user.userprofile.rank.count}}</span></a></li>
+         </ul>
+		</div>
+		
+	   </div><!--/row -->
+      </div><!--/container -->
+     </section><!--/home-menu -->	

@@ -1,0 +1,26 @@
+{% include 'blogs/snippets/navbar.html' %}
+{% load static %}
+<div class="mb-12">
+<a style="margin:30px;" class="btn btn-default" href="{% url 'blogs:create'%}">Write New One</a>
+
+<div>
+<a style="margin:30px;" class="btn btn-link" href="{% url 'blogs:blog_draft_list'%}">Draft</a>
+<a style="margin:30px;" class="btn btn-link" href="{% url 'blogs:blog_publish'%}">Published</a>
+</div>
+    <h1 >Published blogs</h1>
+    <p class="text-small text-muted mb-12">All you unpublish blogs are here </p>
+    <ul>
+    {% for blog in object_list %}
+        <li class="media mb-1"><a href="post.html"><img src="{{blog.image_data.url}}" alt="" width="180"></a>
+            <div class="media-body ml-3">
+                <p class="small text-primary text-uppercase mb-0">{{ blog.create_date|date:'d-m-Y'}}</p>
+                    <h4 class="mb-1"><a class="reset-anchor" href="{% url 'blogs:blog_detail_final' pk=blog.pk slug=blog.slug%}">{{blog.title}}</a></h4>
+                <p class="small text-muted">{{blog.body|safe|truncatechars:200}}</p>
+                <a class="btn btn-warning"href={% url 'blogs:update' pk=blog.pk slug=blog.slug %}>edit</a>
+                <a class="btn btn-primary" href="{% url 'blogs:blog_publish' pk=blog.pk slug=blog.slug %}">Publish NOW!</a>
+                <a class="btn btn-danger" href={% url 'blogs:blog_remove' pk=blog.pk slug=blog.slug %}>delete</a>
+            </div>
+        </li>
+    {% endfor%}
+    </ul>
+</div>

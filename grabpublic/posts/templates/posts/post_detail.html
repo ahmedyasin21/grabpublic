@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="jumbotron" style="background:darken;">
+<h1>Welcome to grabPublic site</h1>
+<h2><a href="{% url 'profiles:detail' username=object.username.user %}"><img src="{{ object.username.avatar.url }}" alt="No avatar found" height="50px" width="50px" style="border-radius: 25px;"></a><a href="{% url 'profiles:detail' username=object.username.user %}" style="margin-left: 20px;">@{{ object.username }}</a></h2>
+<p style="font-size: 2.5em;">Title :{{post.title}}</p>
+
+<p style="text-align: center;"><img src="{{ post.image_data.url }}" width = "50%"><p>
+<P> {{safe|linebreaks}}</p>
+<p><strong>Description: </strong>{{post.description}}</p>
+<p style="text-align: right;"><strong>Created date : </strong>{{post.create_date|date:'d-m-Y'}}</p>
+
+         <p>{{post.likes.count}}{% if request.user in post.likes.all %}<a href="{{post.get_like_toggle}}"> unlike</a>{% else %} <a href="{{post.get_like_toggle}}"> Like</a></p> {% endif %}
+       
+
+
+
+{% if owner %}
+<p style="text-align-last: left;"><span style="text-align: left;"><a class= "btn btn-success" href="{% url 'posts:update' pk=post.pk slug=post.slug %}"> <strong >Edit</strong></a></span>
+<span ><a class= "btn btn-warning" href="{% url 'posts:post_remove' pk=post.pk slug=post.slug %}"> <strong >Delete</strong></a></span></p>
+{% endif %}
+{{post.comments.pk}}
+
+{% if not post.comments.all %}
+No comments
+<a href="{% url 'posts:comment_create' pk=post.pk%}">Add one</a>
+{% else %}
+<a href="{% url 'posts:comment_create' pk=post.pk%}">Add one</a>
+{% for comment in post.comments.all%}
+    <div class="comment">
+        <div class="date">{{ comment.create_date }}</div>
+        <div class="circular--portrait"><img src="{{comment.author.userprofile.avatar.url}}" style='width: 20px;height: 20px;border-radius: 50%;'/></div><strong>by : {{ comment.author }}</strong>
+        <p>{{ comment.body|linebreaks }}</p><br>
+        <hr>
+ 
+    </div>
+
+{% empty %}
+    <p>No comments here yet :( <a href="{% url 'posts:comment_create' pk=post.pk%}">Add one</a></p>
+{% endfor %}
+{% endif %}
+{% endblock content %}

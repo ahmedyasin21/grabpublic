@@ -1,0 +1,7 @@
+1 - notifications should be update, like stackover flow.
+2 - commention should be currect completely.
+3 - like,follow, button ajax css.
+4 - blog templates css
+5 - creating posts,blogs,videos,profile css
+6 - chat add
+7 - 

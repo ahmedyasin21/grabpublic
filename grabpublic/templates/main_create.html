@@ -1,0 +1,23 @@
+{% include 'blogs/snippets/navbar.html' %}
+<div class="container">
+    <div class="row">
+        <div class="card col-md-6" style="width: 18rem;">
+        <a id='title' href="{% url 'blogs:blog_draft_list'%}"> <img src="https://www.theladders.com/wp-content/uploads/writing_content_190610.jpg" class="card-img-top" alt="..." style="width:300px;height:300px;"></a>
+            <div class="card-body">
+                <a id='title' href="{% url 'blogs:blog_draft_list'%}"> <h3 class="card-title" style="text-align:center">Blog</h3></a>
+            </div>
+        </div>
+        <div class="card align-center col-md-6" style="width: 18rem;">
+        <a id='title' href="{% url 'videos:new'%}"> <img src="{{request.user.userprofile.avatar.url}}" class="card-img-top" alt="..." style="width:300px;height:300px;"></a>
+            <div class="card-body">
+                <a id='title' href="{% url 'blogs:blog_draft_list'%}"> <h3 class="card-title" style="text-align:center">Blog</h3></a>
+            </div>
+        </div>
+        <div class="card col-md-6" style="width: 18rem;float:right;margin-right:300px">
+        <a id='title' href="{% url 'posts:create'%}"> <img src="https://specials-images.forbesimg.com/imageserve/5f389fe46922be9ea66a0878/960x0.jpg?fit=scale" class="card-img-top" alt="..." style="width:300px;height:300px;"></a>
+            <div class="card-body">
+                <a id='title' href="{% url 'posts:create'%}"> <h3 class="card-title" style="text-align:center">Post</h3></a>
+            </div>
+        </div>
+    </div>
+</div>

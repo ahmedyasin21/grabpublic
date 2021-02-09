@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load bootstrap3 %}
+
+<style>
+.btn{
+    float:right;
+}
+.form-control:focus {
+   box-shadow:none;
+}
+
+.blogbody{
+    font-size:20px;
+    text-align: left;
+    border: 0px;
+    outline:none;
+    width: 100%;
+    height:150px;
+    
+}
+.blogtitle{
+    font-size:40px;
+    text-align: left;
+    border-top: 0px;
+    border-right: 0px;
+    border-left: 0px;
+    border-bottom-style: groove;
+    outline-width: 0;
+    box-shadow:none;
+    
+
+</style>
+
+
+<form enctype="multipart/form-data" method="POST">
+<div style="margin-top:20px"></div>
+{% csrf_token %}
+
+<input type="submit" value='Preview' class="btn btn-primary btn-large">
+
+<div class="row">
+    <div class="col-lg-2 col-md-12 col-sm-12">
+     {% bootstrap_field form.tag %}
+    </div>
+    <div class="col-lg-10 col-md-12 col-sm-12">
+    {% bootstrap_field form.title%}
+     <label class="hand-cursor">
+    <span  title="story cover" class="fa fa-camera"></span>
+    <input type="file" name="image_data" class="blogimage" accept="image/*" title="story cover" required="" id="id_image_data" nv-file-select uploader="$ctrl.uploader"  style="display:none"/>
+    <img id="previewHolder" width="100%" height="auto"/>
+    </label>
+    {% bootstrap_field form.body%}
+    </div>
+</div>
+   
+
+</form>
+
+<script>
+function readURL(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      $('#previewHolder').attr('src', e.target.result);
+    }
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    alert('select a file to see preview');
+    $('#previewHolder').attr('src', '');
+  }
+}
+
+$("#id_image_data").change(function() {
+  readURL(this);
+});
+
+</script>
+<script>var editor = new MediumEditor('.editable');</script>
+{% endblock content %}

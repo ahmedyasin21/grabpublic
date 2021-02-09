@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+
+
+<p style="text-align: center;"><img src="{{ user.userprofile.avatar.url }}" width = "50%"></p>
+{{ user.userprofile.follower.all }}<br>
+{{user.userprofile }}
+{% if rquest.user.is_authenticated %}Hell{% endif %}
+<div id='test' user="{{user.userprofile}}">
+<h3>Following = {{object.userprofile.follower.count}}</h3></div><div>
+
+<h3>Follower = {{object.is_following.count}}</h3>
+
+{{request.user.userprofile.close_friends.all}} close
+
+{% if user in request.user.userprofile.follower.all  %}
+Following
+{% endif %}
+{% if own %}
+
+{% else %}
+        <div id='is_following'>
+        {% if is_following == True %}
+          <button class="btn btn-warning" id="follow-button" toggle="{{user.userprofile}}">{% csrf_token %}
+           Unfollow
+          </button>
+          {% else %}
+           <button class="btn btn-primary" id="follow-button" toggle="{{user.userprofile}}">{% csrf_token %}
+          Follow
+          </button>
+          {% endif %}
+          </div>
+   
+{% comment %} <p>{% include 'profiles/snippets/follow_toggle.html' with username=user.username is_following=is_following %}</p> {% endcomment %}
+<p>{% include 'profiles/snippets/close_friend_toggle.html' with username=user.username is_close_friend=is_close_friend %}</p>
+{% endif %}
+<h2>{{ username }}</h2>
+/{{is_following}} 
+{% if posts%}
+{% for post in posts %}
+   <div class="jumbotron">
+      
+           
+        <h1><a href="{% url 'posts:post_detail_final' pk=post.pk slug=post.slug %}">{{ post.title }}</a> <img src="{{ post.image_data.url}}" alt="not found" height="60" width="60" style="float:right ;border-radius: 20px;" ></h1>
+
+        <div class="date">
+            <p>
+                Published on: {{ post.create_date|date:"D M Y" }}
+            </p>
+            
+            <p>
+                Posted by: {{post.username}}
+            </p>
+         </div> 
+    </div>
+{% endfor %}
+
+{% else %}
+<p class='lead'>No Items Found</p>
+{% endif %}
+
+
+
+<script>
+   var user = $('#test').attr('user');
+   console.log(user,'test purpose');
+  $(document).on('click', '#follow-button', function (e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: '{% url "profiles:toggle" %}',
+      data: {
+        user_toggle: user,
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+        action: 'POST',
+      },
+      success: function (json) {
+        document.getElementById("is_following").innerHTML = json['result']
+      },
+      error: function (xhr, errmsg, err) {
+      }
+    });
+  })
+</script>
+{% endblock content %}
+
+

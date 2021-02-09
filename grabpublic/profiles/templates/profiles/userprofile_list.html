@@ -1,0 +1,21 @@
+<div class="jumbotron">
+    {% for post in post_list %}
+        <div class="post">
+            <h2><a href="{% url 'profiles:detail' pk=request.user.userprofile.pk %}"><img src="{{ post.username.userprofile.avatar.url }}" alt="No avatar found" height="50px" width="50px" style="border-radius: 25px;"></a><a href="{% url 'profiles:detail' pk=post.username.userprofile.pk %}" style="margin-left: 20px;">@{{ post.username }}</a></h2>
+        <h1><a  href="{% url 'posts:post_detail' pk=post.pk %}">{{ post.title }}</a> <img src="{{ post.image_data.url}}" alt="not found" height="60" width="60" style="float:right ;border-radius: 20px;" ></h1>
+
+        <div class="date">
+            <p>
+                Published on: {{ post.create_date|date:"D M Y" }}
+            </p>
+         </div> 
+    </div>
+    {% endfor %}
+    </div>
+</div>
+
+<form class='form' method='POST' action="{% url 'profiles:toggle'%}">
+{% csrf_token %}
+<input type='hidden' name='userprofile_pk' value="{% if object.pk %}{{ object.pk }}{% else %}hello{% endif %}">
+<button class='btn {% if is_following %}btn-warning{% else %}btn-primary{% endif %}'>{% if is_following %}Unfollow {% else %}Follow{% endif %}</button>
+</form>

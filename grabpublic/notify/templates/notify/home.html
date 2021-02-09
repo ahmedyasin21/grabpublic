@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<p>heelo</p>
+{% load notifications_tags %}
+
+{% notifications_unread %} 
+
+{% notifications_unread as unread_count %}
+...
+
+
+{% if unread_count %}
+    You have <strong>{{ unread_count }}</strong> unread notifications.
+    {% for note in request.user.notifications.unread %}
+    <br>
+    {{note.actor }}
+    {{note.verb}}
+    {% endfor %}
+{% endif %}
+{% for note in request.user.notifications.read %}
+    <br>
+    {{note.actor }}
+    {{note.verb}}
+    {% endfor %}
+{% endblock content %}

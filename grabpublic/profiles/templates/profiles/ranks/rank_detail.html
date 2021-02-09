@@ -1,0 +1,46 @@
+{% load static %}
+{% include 'blogs/snippets/navbar.html' %}
+{% include 'blogs/snippets/profile_pics.html' with username=user.username %}
+{% block ranked %}
+<style>
+.card_{
+    margin-top:20px;
+}
+</style>
+{% for rank in ranks %}
+    {% if "Newbie" == rank.catagory %}
+        <div class="col-lg-3 card_">
+		    <div class="storybox" 
+		        style="background: linear-gradient( rgba(34,34,34,0.78), rgba(34,34,34,0.78)), url('{% static 'assets/img/ranks/newbie.webp'%}') no-repeat;
+		          background-size: cover;
+                  background-position: center center;
+                  border-radius:50%;
+                  -webkit-background-size: cover;
+                  -moz-background-size: cover;
+                  -o-background-size: cover;
+                  width:200px">
+                <div class="story-body text-center">
+                    <h3>{{rank.catagory}}</h3>
+                </div>		  
+		    </div>
+	    </div>
+    {% endif %}
+    {% if "Novice" == rank.catagory %}
+        <div class="col-lg-3 card_">
+		    <div class="storybox" 
+		        style="background: linear-gradient( rgba(34,34,34,0.78), rgba(34,34,34,0.78)), url('{% static 'assets/img/ranks/Novice.jpg'%}') no-repeat;
+		          background-size: cover;
+                  background-position: center center;
+                  border-radius:50%;
+                  -webkit-background-size: cover;
+                  -moz-background-size: cover;
+                  -o-background-size: cover;
+                  width:200px">
+                <div class="story-body text-center">
+                    <h3>{{rank.catagory}}</h3>
+                </div>		  
+		    </div>
+	    </div>
+    {% endif %}
+{% endfor %}
+{% endblock ranked %}

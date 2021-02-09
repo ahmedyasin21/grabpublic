@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+  {% block content %}
+
+
+<br>
+{% if query%}
+<p style='text-align:center;margin-top:20px'>
+Search result <b>{{object_list.count}}</b>
+of <b> {{query}}</b>
+</p>
+<hr>
+{% else %}
+<form methor='GET' action="{%url 'search:query'%}"> 
+<div class="md-form mt-0">
+
+<input class="form-control" type='text' placeholder = 'search' name='q' value={{request.GET.q}}>
+
+</div>
+<button class='btn btn-success' type='submit' style='margin-left:px'>search</button>
+</form>
+<br>
+{% endif %}
+<div class='container'>
+<div class='row'>
+{% for obj in object_list %}
+<div class='col'>
+<div class="card" style="width: 18rem;">
+{% if obj.avatar %}
+  <img src="{{obj.avatar.url}}" class="card-img-top" alt="No image">
+{% endif %}
+  <div class="card-body">
+    <h5 class="card-title">{{forloop.counter}}.{{obj.user}}</h5>
+    <p class="card-text">Following : {{obj.follower.count}}</p>
+    <a href="{%url 'profiles:detail' username=obj.user.username  %}" class="btn btn-primary">View</a>
+  </div>
+ 
+</div>
+</div>
+<hr>
+{% endfor %}
+</div>
+</div>
+
+  
+    {% endblock content %}
