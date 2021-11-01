@@ -1,5 +1,11 @@
-{% include 'blogs/snippets/navbar.html' %}
-<div class="container">
+{% extends 'base_final.html' %}
+{% load notifications_tags %}
+
+{% block content %}
+{% include 'theme/snippets/navbar_second.html' %}
+
+ {% include "snippets/card_buttons.html"%}
+{% comment %} <div class="container">
     <div class="row">
         <div class="card col-md-6" style="width: 18rem;">
         <a id='title' href="{% url 'blogs:blog_draft_list'%}"> <img src="https://www.theladders.com/wp-content/uploads/writing_content_190610.jpg" class="card-img-top" alt="..." style="width:300px;height:300px;"></a>
@@ -20,4 +26,5 @@
             </div>
         </div>
     </div>
-</div>
+</div> {% endcomment %}
+{% endblock content %}

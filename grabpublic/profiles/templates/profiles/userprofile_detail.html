@@ -1,9 +1,6 @@
 {% extends 'base.html' %}
+{% include 'theme/snippets/navbar_second.html' %}
 {% block content %}
-
-
-
-
 
 <p style="text-align: center;"><img src="{{ user.userprofile.avatar.url }}" width = "50%"></p>
 {{ user.userprofile.follower.all }}<br>

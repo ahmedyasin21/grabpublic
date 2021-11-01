@@ -38,20 +38,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bootstrap3',
+
+
+    # own apps
     'accounts' ,
     'posts',
     'blogs',
-    'rest_framework',
     'search',
     'tags',
-    'mptt',
     'notifications',
     'notify',
     'profiles',
     'videos',
     'followers',
-    
+
+    # third party app
+
+    'bootstrap3',
+    'rest_framework',
+    'mptt',
 ]
 
 DJANGO_NOTIFICATIONS_CONFIG = { 'USE_JSONFIELD': True}
@@ -139,12 +144,14 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR,"static"),
     '/var/www/static/',
 ]
-# MEDIA_DIR= [
-#     os.path.join(BASE_DIR,"media"),
-#     '/var/www/media/',
-# ]
-# MEDIA_ROOT = MEDIA_DIR
-# MEDIA_URL = '/media/'
+MEDIA_DIR= [
+    os.path.join(BASE_DIR,"media"),
+    '/var/www/media/',
+]
+
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+MEDIA_URL ='/media/'
+
 
 
 
@@ -153,4 +160,4 @@ LOGOUT_URL = '/accounts/logout/'
 
 MEDIA_URL = '/media/'
 LOGIN_REDIRECT_URL = 'posts:post_list'
-LOGOUT_REDIRECT_URL = 'thanks'
+LOGOUT_REDIRECT_URL = 'home'

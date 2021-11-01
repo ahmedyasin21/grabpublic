@@ -24,6 +24,7 @@ class Post(models.Model):
     slug = models.SlugField(default="abc")
     likes = models.ManyToManyField(User, blank=True,related_name='post_like')
     features = models.ManyToManyField(User,blank=True,related_name='featured')
+    hidden = models.ManyToManyField(User, related_name="hidden", blank=True)
     
 
     def save(self,*args,**kwargs):
@@ -38,7 +39,7 @@ class Post(models.Model):
         self.save()
 
     def get_absolute_url(self):
-        return reverse("posts:post_detail", kwargs={"pk": self.pk,"slug":self.slug})
+        return reverse("posts:post_detail_final", kwargs={"pk": self.pk,"slug":self.slug})
     
     def get_like_toggle(self):
         return reverse("posts:like")

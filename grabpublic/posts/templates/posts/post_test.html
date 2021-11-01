@@ -1,8 +1,11 @@
-{% extends 'base.html' %}
-{% block content %}
-{% load mptt_tags %}
+{% extends 'base_final.html' %}
 {% load static %}
+{% load mptt_tags %}
 
+
+{% block content %}
+
+{% include 'theme/snippets/navbar_second.html' %}
 <style>
   @media screen and (min-width: 600px) {
     .children form {

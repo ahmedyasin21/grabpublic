@@ -1,34 +1,12 @@
-<!DOCTYPE html>
+{% extends 'base_final.html' %}
 {% load static %}
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Travel | Bootstrap blog</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="all,follow">
-    <!-- Bootstrap CSS-->
-    <link rel="stylesheet" href="{% static 'blog/vendor/bootstrap/css/bootstrap.min.css'%}">
-    <!-- Owl Carousel -->
-    <link rel="stylesheet" href="{% static 'blog/vendor/owl.carousel2/assets/owl.carousel.min.css'%}">
-    <link rel="stylesheet" href="{% static 'blog/vendor/owl.carousel2/assets/owl.theme.default.min.css'%}">
-    <!-- Google fonts-->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:300,400&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface&amp;display=swap">
-    <!-- theme stylesheet-->
-    <link rel="stylesheet" href="{% static 'blog/css/style.default.css'%}" id="theme-stylesheet">
-    <!-- Custom stylesheet - for your changes-->
-    <link rel="stylesheet" href="{% static 'blog/css/custom.css'%}">
-    <!-- Favicon-->
-    <link rel="shortcut icon" href="{% static 'blog/img/favicon.png'%}">
-    <!-- Tweaks for older IEs--><!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
-  </head>
-  <body>
-    <!-- Header-->
-  {% include 'blogs/snippets/navbar.html' %}
+{% load mptt_tags %}
+{% load notifications_tags %}
+
+{% block content %}
+{% include 'theme/snippets/navbar_second.html' %}
+
+
   <div class="container" style="margin:30px;">
          <a href="{% url 'tags:tag_detail_blog' pk=tag.pk slug=tag.slug %}"> <button style='background-color: rgba(34,34,34,0.78); 
                                 border: none;
@@ -262,37 +240,29 @@
         </div>
       </div>
     </footer>
-    <!-- JavaScript files-->
-    <script src="{% static 'blog/vendor/jquery/jquery.min.js'%}"></script>
-    <script src="{% static 'blog/vendor/bootstrap/js/bootstrap.bundle.min.js'%}"></script>
-    <script src="{% static 'blog/vendor/owl.carousel2/owl.carousel.min.js'%}"></script>
-    <script src="{% static 'blog/js/front.js'%}"></script>
-    <script>
-      // ------------------------------------------------------- //
-      //   Inject SVG Sprite - 
-      //   see more here 
-      //   https://css-tricks.com/ajaxing-svg-sprite/
-      // ------------------------------------------------------ //
-      function injectSvgSprite(path) {
-      
-          var ajax = new XMLHttpRequest();
-          ajax.open("GET", path, true);
-          ajax.send();
-          ajax.onload = function(e) {
-          var div = document.createElement("div");
-          div.className = 'd-none';
-          div.innerHTML = ajax.responseText;
-          document.body.insertBefore(div, document.body.childNodes[0]);
-          }
-      }
-      // this is set to BootstrapTemple website as you cannot 
-      // inject local SVG sprite (using only 'icons/orion-svg-sprite.svg' path)
-      // while using file:// protocol
-      // pls don't forget to change to your domain :)
-      injectSvgSprite('https://bootstraptemple.com/files/icons/orion-svg-sprite.svg'); 
-      
-    </script>
-    <!-- FontAwesome CSS - loading as last, so it doesn't block rendering-->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-  </body>
-</html>
+
+
+
+    <!-- ==============================================
+	 Scripts
+	 =============================================== -->
+	<script src="{% static 'assets/js/jquery.min.js'%}"></script>
+	<script src="{% static 'assets/js/bootstrap.min.js'%}"></script>
+	<script src="{% static 'assets/js/base.js'%}"></script>
+	<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.js'%}"></script>
+	<script>
+	$('#Slim,#Slim2').slimScroll({
+	        height:"auto",
+			position: 'right',
+			railVisible: true,
+			alwaysVisible: true,
+			size:"8px",
+		});		
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+  </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+  </script>
+ {% endblock content%}

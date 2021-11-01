@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% load notifications_tags %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrabPublic</title>
+    {% include 'theme/snippets/css.html' %}
+  
+
+</head>
+<body>
+    {% include 'theme/snippets/navbar.html' with notify=notify %}
+    
+
+    {% block content %}
+    
+    
+    {% endblock content %}
+    {% include 'theme/snippets/js.html' %}
+</body>
+</html>

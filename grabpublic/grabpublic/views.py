@@ -1,10 +1,10 @@
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from tags.models import Tag
+from django.contrib.auth.models import User
 
 class TestPage(TemplateView,LoginRequiredMixin):
     template_name = "test.html"
-
 
 class ThanksPage(TemplateView):
     template_name = "thanks.html"
@@ -21,8 +21,6 @@ class HomePage(TemplateView):
         context["tags"] = Tag.objects.all().order_by('timestamp')
         return context
     
-
-
 
 class AboutView(TemplateView):
    template_name = "about.html"

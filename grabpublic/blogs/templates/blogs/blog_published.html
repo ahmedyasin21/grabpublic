@@ -1,11 +1,25 @@
-{% include 'blogs/snippets/navbar.html' %}
+{% extends 'base_final.html' %}
 {% load static %}
-<div class="mb-12">
-<a style="margin:30px;" class="btn btn-default" href="{% url 'blogs:create'%}">Write New One</a>
 
-<div>
-<a style="margin:30px;" class="btn btn-link" href="{% url 'blogs:blog_draft_list'%}">Draft</a>
-<a style="margin:30px;" class="btn btn-link" href="{% url 'blogs:blog_publish'%}">Published</a>
+
+{% block content %}
+{% include 'theme/snippets/navbar_second.html' %}
+<style>
+.cover {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+a {
+  color: red;
+  text-decoration: none;
+}
+</style>
+<div class="mb-12">
+
+{% include './snippets/buttons.html' %}
+
 </div>
     <h1 >Published blogs</h1>
     <p class="text-small text-muted mb-12">All you unpublish blogs are here </p>
@@ -24,3 +38,6 @@
     {% endfor%}
     </ul>
 </div>
+
+
+{% endblock content %}

@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from .models import UserProfile
+import json
 from posts.models import Post
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
@@ -24,9 +25,14 @@ from .models import Rank
 
 
 class ProfileUpdateView(UpdateView):
-    refirect_field_name ='profiles:final_detail'
+    refirect_field_name ='profiles:detail'
     form_class = UserUpdateForm
     model = UserProfile
+
+    # def get(self, request, *args, **kwargs):
+    #     user = request.user.userprofile
+    #     user_notify = User.objects.get(username=self.request.user)
+    #     return render(request, "profiles/close_friend.html", {'notify':user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]})
 
     def get_object(self, *args, **kwargs):
         return self.request.user.userprofile
@@ -35,6 +41,12 @@ class ProfileUpdateView(UpdateView):
         context = super(ProfileUpdateView, self).get_context_data(*args, **kwargs)
         update_form = UserUpdateForm(instance = self.request.user.userprofile)
         context['form']=update_form
+
+        user = self.request.user.userprofile
+        user_notify = User.objects.get(username=self.request.user)
+        context['notify'] = user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context["notify_count"] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+
         return context
     
     def form_valid(self, form):
@@ -56,8 +68,13 @@ class UserProfileFollowToggle(LoginRequiredMixin,View):
     login_url = '/accounts/login/'
     def post(self, request):
             username_to_toggle = request.POST.get("user_toggle")
-            profile_, is_following = UserProfile.objects.toggle_follow(request.user, request.user.id ,username_to_toggle)
-            return JsonResponse({'result': is_following, })
+            json_follower = None
+            profile_, is_following,json_follower = UserProfile.objects.toggle_follow(request.user, request.user.id ,username_to_toggle,json_follower)
+            # json_dump_user = json.loads(json_follower)
+            # print(json_dump_user,"Now i views :D")
+            return JsonResponse({'result': is_following, 'json_follower':json_follower})
+        
+  
 
 
     
@@ -65,6 +82,7 @@ class UserProfileFollowToggle(LoginRequiredMixin,View):
 
 class UserProfileCloseFriendToggle(LoginRequiredMixin,View):
     login_url = '/accounts/login/'
+
     def post(self, request, *args, **kwargs):
             username_to_toggle = request.POST.get("user")
             profile_, is_close_friend = UserProfile.objects.toggle_close_friend(request.user, username_to_toggle)
@@ -91,6 +109,7 @@ class FinalProfileDetailView(LoginRequiredMixin,DetailView):
     template_name = "profiles/final_userprofile.html"
     # slug_url_kwarg = "username" # this the `argument` in the URL conf
     # slug_field = "user"
+
 
 
     def close_friend(self):
@@ -142,7 +161,12 @@ class FinalProfileDetailView(LoginRequiredMixin,DetailView):
         if user.userprofile == self.request.user.userprofile:
             own = True
         context['own'] = own
-        
+
+        user = self.request.user.userprofile
+        user_notify = User.objects.get(username=self.request.user)
+        context['notify'] = user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context["notify_count"] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+
         return context   
  
 
@@ -157,6 +181,7 @@ class UserProfileDetailView(LoginRequiredMixin,DetailView):
     template_name = "profiles/userprofile_detail.html"
     # slug_url_kwarg = "username" # this the `argument` in the URL conf
     # slug_field = "user"
+
 
 
     def close_friend(self):
@@ -217,52 +242,147 @@ class UserProfileDetailView(LoginRequiredMixin,DetailView):
         if user.userprofile == self.request.user.userprofile:
             own = True
         context['own'] = own
+
+
+
+        user = self.request.user.userprofile
+        user_notify = User.objects.get(username=self.request.user)
+        context['notify'] = user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context["notify_count"] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+
         return context
 
-class FolloweHomeView(LoginRequiredMixin,View):
+class FollowerHomeView(LoginRequiredMixin,TemplateView):
    
     login_url = '/accounts/login/'
-    def get(self, request, *args, **kwargs):
-    
+    template_name = "profiles/follower_home_feed.html"
+   
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(FollowerHomeView, self).get_context_data(*args, **kwargs)
+        request = self.request
         user = request.user.userprofile
         user_notify = User.objects.get(username=self.request.user)
-        print(user.follower.all())
+        # print(user.follower.all(),"hehhehehe")
         is_following_user_ids = [x.id for x in user.follower.all()]
-        qs = Post.objects.filter(
-                                username__user__is_following__user=request.user
-                                ).order_by('-create_date')[:10]
-        return render(request, "profiles/follower_home_feed.html", {'object_list': qs,
-        'follow_sugguestion':UserProfile.objects.annotate(num_followers=Count('follower')).order_by('-num_followers')[:4],
-        'trending': Post.objects.annotate(num_likes=Count('likes')).order_by('-num_likes')[:6],
-        'tags':Tag.objects.all().order_by('timestamp')[:4],
-        'notify':user_notify.notifications.all().order_by('-timestamp')[:4]
-    })
+
+        following_qs = []
+        for follower in user.follower.all():
+            qs = Post.objects.filter(username__user=follower).order_by('-create_date')[:2]
+            for post in qs:
+                following_qs.append(post)
+             
+        # followers posts
+        # follower_qs = Post.objects.filter(
+        #                         username__user__is_following__user=request.user
+        #                         ).order_by('-create_date')[:10]
+
+        suggested_follower_query = UserProfile.objects.annotate(num_followers=Count('follower')).order_by('-num_followers')
+        # print(suggested_follower_query,"ajajsja")
+        follower_array = []
+        
+        suggested_follower_query_arry = []
+
+        for suggestion in suggested_follower_query:
+            # print(suggestion,"suggestion")
+            if user != suggestion:
+                suggested_follower_query_arry.append(suggestion)
+                # print(suggested_follower_query_arry,"suggestion inserted")
+            
+
+
+        for user in user.follower.all():
+            # print(user,'user')
+            try:
+                follower = UserProfile.objects.get(user=user)
+                # print(follower,"got a follower")
+            except UserProfile.DoesNotExist:
+                pass
+            
+            if follower in suggested_follower_query_arry:
+                # print(follower,"follower")
+                suggested_follower_query_arry.remove(follower)
+
+        # print(suggested_follower_query_arry,"arry follower")
+            
+        
+        context["object_list"]= following_qs[:10]
+        context["follow_sugguestion"] = suggested_follower_query_arry[:4]
+        context['trending']= Post.objects.annotate(num_likes=Count('likes')).order_by('-num_likes')[:6]
+        context['tags']=Tag.objects.all().order_by('timestamp')[:4]
+        context['notify']=user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context['notify_count'] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+        
+        
+        return context
+    
 
  
-class CloseFriendHomeView(LoginRequiredMixin,View):
+class CloseFriendHomeView(LoginRequiredMixin,TemplateView):
    
     login_url = '/accounts/login/'
-    
+    template_name = "profiles/close_friend.html"
+   
 
-    def get(self, request, *args, **kwargs):
-    
-
+    def get_context_data(self, *args, **kwargs):
+        context = super(CloseFriendHomeView, self).get_context_data(*args, **kwargs)
+        request = self.request
         user = request.user.userprofile
-        print(user.follower.all())
+        user_notify = User.objects.get(username=self.request.user)
+        print(user.follower.all(),"hehhehehe")
         is_following_user_ids = [x.id for x in user.follower.all()]
-        qs = Post.objects.filter(
-                                username__user__my_close_friends__user=request.user
-                                ).order_by('-create_date')[:10]
-        return render(request, "profiles/close_friend.html", {'object_list': qs,
-        'follow_sugguestion':UserProfile.objects.annotate(num_followers=Count('follower')).order_by('-num_followers')[:10],
-        'trending': Post.objects.annotate(num_likes=Count('likes')).order_by('-num_likes')[:6],
-        'tags':Tag.objects.all().order_by('-timestamp')[:6]
-    })
+
+        following_qs = []
+        for follower in user.follower.all():
+            if follower in user.close_friends.all():
+                qs = Post.objects.filter(username__user=follower).order_by('-create_date')[:2]
+                for post in qs:
+                    following_qs.append(post)
+        # qs = Post.objects.filter(
+        #                         username__user__my_close_friends__user=request.user
+        #                         ).order_by('-create_date')[:10]
+
+        suggested_follower_query = UserProfile.objects.annotate(num_followers=Count('follower')).order_by('-num_followers')
+        print(suggested_follower_query,"ajajsja")
+        follower_array = []
+        
+        suggested_follower_query_arry = []
+
+        for suggestion in suggested_follower_query:
+            print(suggestion,"suggestion")
+            if user != suggestion:
+                suggested_follower_query_arry.append(suggestion)
+                print(suggested_follower_query_arry,"suggestion inserted")
+            
+
+
+        for user in user.follower.all():
+            print(user,'user')
+            try:
+                follower = UserProfile.objects.get(user=user)
+                print(follower,"got a follower")
+            except UserProfile.DoesNotExist:
+                pass
+            
+            if follower in suggested_follower_query_arry:
+                print(follower,"follower")
+                suggested_follower_query_arry.remove(follower)
+
+        print(suggested_follower_query_arry,"arry follower")
+            
+        
+        context['object_list']= following_qs[:10]
+        context["follow_sugguestion"] = suggested_follower_query_arry[:4]
+        context['trending']= Post.objects.annotate(num_likes=Count('likes')).order_by('-num_likes')[:6]
+        context['tags']=Tag.objects.all().order_by('timestamp')[:4]
+        context['notify']=user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context['notify_count'] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+        return context
 
 class FollowerView(DetailView):
     template_name = "profiles/follower_detail.html"
     model = UserProfile
+
 
     def get_object(self):
     
@@ -294,12 +414,19 @@ class FollowerView(DetailView):
         print(followerings_Array,'arry one one one ')
         context['myfollowers_data']= followers_Array
         context['myfollowerings_data']=  myfollowerings 
+
+        user = self.request.user.userprofile
+        user_notify = User.objects.get(username=self.request.user)
+        context['notify'] = user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context["notify_count"] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+
          
         return context
 
 class FollowingView(DetailView):
     template_name = "profiles/following_detail.html"
     model = UserProfile
+
 
     def get_object(self):
     
@@ -331,140 +458,15 @@ class FollowingView(DetailView):
         print(followerings_Array,'arry one one one ')
         context['myfollowers_data']= followers_Array
         context['myfollowerings_data']= followerings_obj 
+
+        user = self.request.user.userprofile
+        user_notify = User.objects.get(username=self.request.user)
+        context['notify'] = user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context["notify_count"] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+
          
         return context
         
-
-
-
-    # def get(self, request, *args, **kwargs):
-    #     profile_ = UserProfile.objects.get(user=request.user)
-    #     users = [user for user in profile_.follower.all()]
-    #     posts = []
-    #     qs=None
-
-    #     for u in users:
-    #         p = UserProfile.objects.get(user=u)
-    #         p_post = p.post_set.all()
-    #         posts.append(p_post)
-        
-    #     if len(posts)>0:
-    #         qs = sorted(chain(*posts), reverse = True, key=lambda obj:obj.create_date)
-        
-    #     return render(request, "profiles/follower_home_feed.html", {'profile': profile_,'object_list':qs})
-
-   
-    # def get_context_data(self, *args, **kwargs):
-    #         context = super().get_context_data(*args,**kwargs) 
-    #         print(self.object.user,'view profile')
-    #         print(self.request.user.userprofile.follower.all(),'my profile')
-    #         is_following = False
-    #         if self.object.user in self.request.user.userprofile.follower.all():
-    #             is_following = True
-    #         context["is_following"] = is_following
-    #         return context
-
-    # def get_object(self, *args, **kwargs):
-    #     pk = self.kwargs.get('pk')
-    #     view_profile = UserProfile.objects.get(pk=pk)
-    #     return view_profile
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     view_profile = self.get_object()
-    #     print(view_profile.user,'view profile')
-    #     my_profile = UserProfile.objects.get(user=self.request.user)
-    #     print(my_profile,'my profile')
-    #     is_following = False
-    #     if view_profile.user in my_profile.follower.all():
-    #         is_following=True
-
-    #     context["is_following"] = is_following
-    #     return context
-    
-    
-
-    # def get_queryset(self,*args, **kwargs):
-    #     userss = get_object_or_404(User, username=self.kwargs.get('username'))
-    #     return UserProfile.objects.filter(user=userss).order_by('-create_date')
-
-
-
-
-
-
-        
-        
-
-
-
-# @login_required
-# def userprofile(request):
-#     # puplated field with the user data
-#     if request.method == 'POST':
-#         u_form = UserUpdateForm(request.POST,instance=request.user)
-#         p_form = UserProfileForm(request.POST,request.FILES,instance=request.user.userprofile)
-#     # now check if both forms are valid or not 
-#         if u_form.is_valid() and p_form.is_valid():
-#             u_form.save()
-#             p_form.save()
-#     #after all the process you need to tell user if all changes are saved than use masseges
-#             messages.success(request,f'Your account has been updated!')
-#             return redirect('profiles:home')
-#     else :
-#         u_form = UserUpdateForm(instance=request.user)
-#         p_form = UserProfileForm(instance=request.user.userprofile)
-    
-#     def ger_object(self,*args, **kwargs):
-#         request = self.request
-#         slug = self.kwargs.get('slug')
-#         try:
-#             instance = UserProfile.objects.get(slug=slug,active = True)
-#         except UserProfile.DoesNotExists:
-#             raise Http404("Not found")
-#         except UserProfile.MultipleObjectsReturned:
-#             qs = UserProfile.objects.filter(slug = slug,  active=True)
-#             instance = qs.first()
-#         except:
-#             raise Http404('Uhmm')
-#         return instance   
-
-
-#     context ={
-#         'u_form' :u_form,
-#         'p_form':p_form
-#     }
-#     return render(request,"profiles/userprofile.html",context)
-
-
-    
-
-
-
-# class UserProfileCreateView(LoginRequiredMixin,CreateView):
-#     form_class = UserProfileForm()
-#     model = UserProfile
-#     form_class = UserUpdateForm
-#     model = get_user_model()
-    
-#     queryset = User.objects.all()
-#     redirect_field_name='profiles/userprofile.html'
-    
-    
-
-    # def form_valid(self,p_form):
-    #     self.object = form.save(commit = False)
-    #     self.object.user = self.request.user
-    #     self.object.save()
-    #     return super().form_valid(p_form)
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context["form"] = form_class
-    #     return context
-    
-
-
 
 
 # Rank portions
@@ -472,6 +474,7 @@ class FollowingView(DetailView):
 class RankView(DetailView):
     model=Rank
     template_name = "profiles/ranks/rank_detail.html"
+
 
     def get_object(self):
     
@@ -490,6 +493,12 @@ class RankView(DetailView):
         context["ranks"] = ranks
         posts = Post.objects.filter(username=user.userprofile).order_by('-create_date')
         context['posts'] = posts
+
+        user = self.request.user.userprofile
+        user_notify = User.objects.get(username=self.request.user)
+        context['notify'] = user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context["notify_count"] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+
         return context
     
 

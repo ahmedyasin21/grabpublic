@@ -9,7 +9,7 @@ urlpatterns = [
     # path('user/',userprofile,name = 'home'),
     path('user-profile/',views.UserProfileFollowToggle.as_view(),name = 'toggle'),
     path('close-friend/',views.UserProfileCloseFriendToggle.as_view(),name = 'close_friend_toggle'),
-    path('user-follow-feed/',views.FolloweHomeView.as_view(),name = 'follow-feed'),
+    path('user-follow-feed/',views.FollowerHomeView.as_view(),name = 'follow-feed'),
 
     path('followers/<str:username>/',views.FollowerView.as_view(),name = 'followers'),
     path('followerings/<str:username>/',views.FollowingView.as_view(),name = 'followings'),
@@ -17,8 +17,8 @@ urlpatterns = [
     path('profiles/<str:username>/<int:pk>/',views.ProfileUpdateView.as_view(),name = 'update'),
 
     path('close-friend-feed/',views.CloseFriendHomeView.as_view(),name = 'close-friend-feed'),
-    path('<str:username>/',views.UserProfileDetailView.as_view(),name = 'detail'),
-    path('final/<str:username>/',views.FinalProfileDetailView.as_view(),name = 'final_detail'),
+    # path('<str:username>/',views.UserProfileDetailView.as_view(),name = 'detail'),
+    path('<str:username>/',views.FinalProfileDetailView.as_view(),name = 'detail'),
     path('profiles/hey/', views.ProfileUpdateView.as_view(), name='update'),
     # path('<int:pk>/',UserProfileDetailView.as_view(),name = 'detail'),
 

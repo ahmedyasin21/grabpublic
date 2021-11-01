@@ -25,11 +25,17 @@ import notifications.urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.HomePage.as_view(template_name ="index.html"),name='home'),
-    path('accounts/',include('accounts.urls',namespace='accounts')),
-    path('accounts/',include('django.contrib.auth.urls')),
     path('test/',views.TestPage.as_view(),name = 'test'),
     path('thanks/',views.ThanksPage.as_view(),name='thanks'),
     path('main/',views.MainCreate.as_view(),name='main_create'),
+    path('about/',views.AboutView.as_view(),name ='about'),
+
+    # builted
+    path('accounts/',include('accounts.urls',namespace='accounts')),
+    path('accounts/',include('django.contrib.auth.urls')),
+
+   
+    # Own Apps
     path('posts/',include('posts.urls',namespace='posts')),  
     path('profiles/',include('profiles.urls',namespace='profiles')), 
     path('search/', include('search.urls',namespace = 'search')),
@@ -38,12 +44,7 @@ urlpatterns = [
     path('blogs/', include('blogs.urls',namespace = 'blogs')),
     path('videos/', include('videos.urls',namespace = 'videos')),
     path('followers/', include('followers.urls',namespace = 'followers')),
-    
     path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
-
-
-    path('about/',views.AboutView.as_view(),name ='about'),
-    # path('^', include('follow.urls')), 
 ]
 
 urlpatterns += staticfiles_urlpatterns()

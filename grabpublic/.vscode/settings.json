@@ -1,4 +1,8 @@
 {
     "python.pythonPath": "C:\\Users\\AHMED\\anaconda3\\python.exe",
-    "liveServer.settings.port": 5502
+    "liveServer.settings.port": 5502,
+    "files.associations": {
+        "iostream": "cpp",
+        "string_view": "cpp"
+    }
 }

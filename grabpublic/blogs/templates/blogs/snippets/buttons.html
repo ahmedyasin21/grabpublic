@@ -1,0 +1,39 @@
+{% load static %}
+<style>
+
+.draft_btn {
+    margin:30px; 
+    width:200px;
+}
+
+.published_btn {
+    margin:30px; 
+    width:200px;
+  
+}
+
+.new_one_btn {
+    margin-right:30px;
+    width:200px;
+    float: right;
+}
+</style> 
+
+<div>
+
+    <a href="{% url 'blogs:blog_draft_list'%}">
+        <img class="draft_btn" src="{% static 'blog/blogs-images/draft.png'%}" alt="draft">
+    </a>
+
+    <a href="{% url 'blogs:blog_publish'%}">
+        <img class="published_btn" src="{% static 'blog/blogs-images/published.png'%}" alt="published">
+    </a>
+
+    <a href="{% url 'blogs:create'%}">
+        <img class="new_one_btn" src="{% static 'blog/blogs-images/new-one.png'%}" alt="Write New One">
+    </a>
+
+</div>
+
+
+

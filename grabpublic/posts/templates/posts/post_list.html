@@ -1,75 +1,106 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'base_final.html' %}
 {% load static %}
+{% load notifications_tags %}
 
- <div class="container">
-                <div class="row infinite-container">
-                    {% for post in post_list%}
-                        <div class="col-md-6 infinite-item">
-                            <div class="card mb-4 shadow-sm">
-                                <img class="img-thumbnail"  src="{{post.image_data.url}}"/>
-                                <div class="card-body">
-                                    <h5>{{post.title}}</h5>
-                                    <p class="card-text">
-                                        {{post.description|truncatewords:20}}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-                {% if page_obj.has_next %}
-                true
-                <a class="infinite-more-link" href="?page={{page_obj.next_page_number}}"></a>
-                
-                <div class="d-flex justify-content-center" style="display:none;">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
+{% block content %}
+{% include 'theme/snippets/navbar_second.html' %}
+  
+<!-- Mirrored from themashabrand.com/templates/Fluffs/photo_explore.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 09 Oct 2020 21:06:58 GMT -->
 
- 
-    <script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
-    <script src="{% static 'js/infinite.min.js' %}"></script>
-    <script>
-    var infinite = new Waypoint.Infinite({
-        element: $('.infinite-container')[0],
-        handler: function(direction) {
-
-    },
-    offset: 'bottom-in-view',
-
-    onBeforePageLoad: function () {
-    $('.spinner-border').show();
-    },
-    onAfterPageLoad: function () {
-    $('.spinner-border').hide();
-    }
-
-    });
-
-    </script>
-
-
+  
+	 <!-- ==============================================
+	 News Feed Section
+	 =============================================== --> 
+	 <section class="newsfeed">
+	  <div class="container">
+	  
+	   <div class="row one-row">
+	    <div class="col-lg-12">
+	     <a href="#"><h4>See All</h4></a>
+		</div>
+	   </div>
+	  
+	   <div class="row top-row">
+	   {% for user in follow_sugguestion %}
+	    <div class="col-lg-3">
+		 <div class="tr-section">
+		  <div class="tr-post">
+		   <div class="entry-header">
+		    <div class="entry-thumbnail">
+		     <a href="#"><img class="img-fluid" src="{{user.background.url}}" alt="Image"></a>
+		    </div><!-- /entry-thumbnail -->
+	       </div><!-- /entry-header -->
+		   <div class="post-content">
+		    <div class="author-post text-center">
+		     <a href="#"><img class="img-fluid rounded-circle" src="{{user.avatar.url}}" alt="Image"></a>
+		    </div><!-- /author -->
+			<div class="card-content">
+			 <h4>{{user.user}}</h4>
+		     <span>@{{user.user}}</span>
+			</div>
+			 <a href="#" class="kafe-btn kafe-btn-mint-small full-width"> Follow
+			 </a>		  
+		   </div><!-- /.post-content -->									
+		  </div><!-- /.tr-post -->	
+	     </div><!-- /.tr-post -->	
+		</div><!-- /col-sm-3 -->
+		{% endfor %}
+	   </div>
+	  
+	   <div class="row one-row">
+	    <div class="col-lg-12">
+	     <h4>Explore Section</h4>
+		</div>
+	   </div>
+	  
+	   <div class="row">
+	   {% for trend in trending %}
+	   
+	    <div class="col-lg-4">
+		 <a href="{% url 'posts:post_detail_final' pk=trend.pk slug=trend.slug %}" data-toggle="modal">
+			<div class="explorebox" 
+			style="background: linear-gradient( rgba(34,34,34,0.2), rgba(34,34,34,0.2)), url('{{trend.image_data.url}}') no-repeat;
+					background-size: cover;
+					background-position: center center;
+					-webkit-background-size: cover;
+					-moz-background-size: cover;
+					-o-background-size: cover;">
+			<div class="explore-top">
+			<div class="explore-like"><i class="fa fa-heart"></i> <span>{{trend.likes.count}}</span></div>
+			<div class="explore-circle pull-right"><i class="far fa-bookmark"></i></div>
+			</div>		  
+			<div class="explore-body">
+			<div class=""><img class="img-circle" src="{{trend.username.avatar.url}}" alt="user"></div>
+			</div>		  
+			</div>
+		 </a>
+		</div><!--/ col-lg-4 -->
+{% endfor %}
+	   </div><!--/ row -->
+	  </div><!--/ container -->
+	 </section><!--/ newsfeed -->
+	 
+	 
+     <!-- ==============================================
+	 Scripts
+	 =============================================== -->
+	<script src="{% static 'assets/js/jquery.min.js'%}"></script>
+	<script src="{% static 'assets/js/bootstrap.min.js'%}"></script>
+	<script src="{% static 'assets/js/base.js'%}"></script>
+	<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.js'%}"></script>
+	<script>
+	$('#Slim,#Slim2').slimScroll({
+	        height:"auto",
+			position: 'right',
+			railVisible: true,
+			alwaysVisible: true,
+			size:"8px",
+		});		
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+  </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+  </script>
 {% endblock content %}
-
-
-<div class="jumbotron">
-    {% for post in post_list %}
-        <div class="post">
-        {{ post.pk }}~~{{ post.username }}
-            <h2><a href="{% url 'profiles:detail' username=post.username %}"><img src="{{ post.username.avatar.url }}" alt="No avatar found" height="50px" width="50px" style="border-radius: 25px;"></a><a href="{% url 'profiles:detail' username=post.username  %}" style="margin-left: 20px;">@{{ post.username  }}</a></h2>
-        <h1><a href="{% url 'posts:post_detail' pk=post.pk slug=post.slug %}">{{ post.title }}</a> <img src="{{ post.image_data.url}}" alt="not found" height="60" width="60" style="float:right ;border-radius: 20px;" ></h1>
-
-        <div class="date">
-            <p>
-                Published on: {{ post.create_date|date:"D M Y" }}
-            </p>
-         </div> 
-    </div>
-    {% endfor %}
-    </div>
-</div>
-username=post.username

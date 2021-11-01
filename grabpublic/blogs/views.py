@@ -25,6 +25,12 @@ class BlogListView(ListView):
     template_name = 'blogs/blog_list.html'
     paginate_by = 3
 
+    def get(self, request, *args, **kwargs):
+        user = request.user.userprofile
+        user_notify = User.objects.get(username=self.request.user)
+        return render(request, "blogs/blog_list.html", {'notify':user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]})
+
+
     def get_queryset(self):
         return Blog.objects.filter(create_date__lte=timezone.now()).order_by('-create_date')
     def get_context_data(self, **kwargs):
@@ -37,6 +43,12 @@ class BlogListView(ListView):
 class BlogDetailView(DetailView):
     model = Blog
     template_name = 'blogs/blog_detail.html'
+
+    def get(self, request, *args, **kwargs):
+        user = request.user.userprofile
+        user_notify = User.objects.get(username=self.request.user)
+        return render(request, "blogs/blog_detail.html", {'notify':user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]})
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -77,7 +89,7 @@ def single_blog(request ,*args, **kwargs):
     #         user_comment.save()
     #         return HttpResponseRedirect(f'/posts/test/{pk}/{slug}')
     # else:
-    
+    user_notify = User.objects.get(username=request.user)
     comment_form = CommentForm()
     return render(
                 request,
@@ -87,6 +99,8 @@ def single_blog(request ,*args, **kwargs):
                     #   'comments': comments, 
                       'comment_form': comment_form,
                       'allcomments': allcomments,
+                      'notify':user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4],
+                      'notify_count':user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
                     }
                  )
 
@@ -119,6 +133,8 @@ def final_blog(request ,*args, **kwargs):
     # else:
     
     comment_form = CommentForm()
+    user = request.user.userprofile
+    user_notify = User.objects.get(username=request.user)
     return render(
                 request,
                  'blogs/final_blog.html',
@@ -127,6 +143,8 @@ def final_blog(request ,*args, **kwargs):
                     #   'comments': comments, 
                       'comment_form': comment_form,
                       'allcomments': allcomments,
+                      'notify':user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4],
+                      'notify_count':user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
                     }
                  )
 
@@ -168,6 +186,15 @@ class BlogCreateView(LoginRequiredMixin,CreateView):
     redirect_field_name='blogs/blog_detail.html'
     form_class = BlogForm
     model = Blog 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user.userprofile
+        user_notify = User.objects.get(username=user)
+        context["notify"] = user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context["notify_count"] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+        return context
+    
     
     def form_valid(self, form):
         user_blog = form.save(commit=False)
@@ -181,6 +208,14 @@ class BlogUpdateView(LoginRequiredMixin,UserPassesTestMixin,UpdateView):
     form_class = BlogForm
     model = Blog
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user.userprofile
+        user_notify = User.objects.get(username=user)
+        context["notify"] = user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context["notify_count"] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+        return context
+
     def test_func(self):
         blog = self.get_object()
         if self.request.user == blog.username.user:
@@ -192,11 +227,23 @@ class BlogDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
     model = Blog
     success_url = reverse_lazy('blogs:blog_draft_list')
 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user.userprofile
+        user_notify = User.objects.get(username=user)
+        context["notify"] = user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context["notify_count"] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+        return context
+
+        
     def test_func(self):
         blog = self.get_object()
         if self.request.user == blog.username.user:
             return True
         return False
+    
+
 
 
 def fan(request):
@@ -242,6 +289,13 @@ def favorites(request):
 class DraftListView(ListView):
     model = Blog
 
+    
+    def get(self, request, *args, **kwargs):
+        user = request.user.userprofile
+        user_notify = User.objects.get(username=self.request.user)
+        notify_count = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
+        return render(request, "blogs/blog_draft.html", {'notify':user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4],'notify_count':notify_count})
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         blogs = Blog.objects.filter(username=self.request.user.userprofile).order_by('-create_date')
@@ -250,6 +304,7 @@ class DraftListView(ListView):
 
 class PublishedListView(ListView):
     model = Blog
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -261,6 +316,11 @@ class PublishedListView(ListView):
             else:
                 blog.append('no published')
         context["object_list"] = blogs
+
+        user = self.request.user.userprofile
+        user_notify = User.objects.get(username=self.request.user)
+        context["notify"] = user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4]
+        context["notify_count"] = user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()
         return context
     
 

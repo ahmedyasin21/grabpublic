@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.db.models.signals import post_save,pre_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -10,6 +11,11 @@ from decimal import Decimal
 from random import sample
 from notifications.signals import notify
 from django.utils import timezone
+from django.core import serializers
+from django.http import HttpResponse
+from django.http import JsonResponse
+from notifications.models import Notification
+import json
 
 class Rank(models.Model):
 
@@ -29,23 +35,73 @@ def rank_pre_save_reciever(sender,instance,*args, **kwargs):
 
 pre_save.connect(rank_pre_save_reciever,Rank)
 
+
+
+
+
+
+# def some_view(username_to_toggle):
+#     print(username_to_toggle,"User to togle")
+#     users = User.objects.filter(username__iexact=username_to_toggle)
+#     print(users,"User objects")
+#     user_json = serializers.serialize('json', users)
+#     print(users,"User json")
+#     return HttpResponse(user_json, content_type='application/json')
+# def some_view(username_to_toggle):
+#     print(username_to_toggle,"User to togle")
+#     user = User.objects.get(username__iexact=username_to_toggle)
+#     print(user,"User object")
+#     user_json = serializers.serialize('json', [user])
+#     # user_json = json.dumps(user_seri)
+#     # print(user_json,"User json")
+#     return user_json.type()
+
+
+def some_view(user):
+    data =None
+    try :
+        print(user.id, "iddd")
+        data = list(User.objects.values())  # wrap in list(), because QuerySet is not JSON serializable
+        user_ = data["id"][0]
+        print(user_,"i hot")
+        # for url in data["id"][0]:
+        #     if url["id"] == user.id:
+        #         value = url["value"]
+        #         print(value)
+        #         break
+    except AttributeError:
+        pass
+
+    return data
+
+
 class ProfileManager(models.Manager):
-    def toggle_follow(self, request_user,user_id, username_to_toggle):
+    def toggle_follow(self, request_user,user_id, username_to_toggle,json_follower):
         profile_ = UserProfile.objects.get(user__username__iexact=request_user.username)
         is_following = False
         follower = profile_.follower.filter(username__iexact=username_to_toggle).first()
+        
         if follower:
             profile_.follower.remove(follower.id)
+            profile_.close_friends.remove(follower.id)
             actor = User.objects.get(pk=user_id)
             user = User.objects.get(username=username_to_toggle)
+            notification_ids = Notification.objects.filter(actor_object_id=actor.id, recipient_id=user.id, verb='follow you').values_list('id', flat=True)
+            query = Notification.objects.filter(id__in=notification_ids).update(deleted=True)
+            print(notification_ids,"hey heyh eh")
+
+            # json_follower = some_view(user)
         else:
             new_follower = User.objects.get(username__iexact=username_to_toggle)
             profile_.follower.add(new_follower.id)
             actor = User.objects.get(pk=user_id)
             user = User.objects.get(username=username_to_toggle)
             notify.send(actor, recipient=user, verb='follow you')
-            is_following = True
-        return profile_, is_following
+            # json_follower = some_view(username_to_toggle)
+            is_following = True   
+
+        return profile_, is_following,json_follower
+        
     
     def toggle_close_friend(self,request_user, username_to_toggle):
         profile_ = UserProfile.objects.get(user__username__iexact=request_user.username)
@@ -57,7 +113,7 @@ class ProfileManager(models.Manager):
             new_follower = User.objects.get(username__iexact=username_to_toggle)
             profile_.close_friends.add(new_follower.id)
             is_close_friend = True
-        return profile_, is_close_friend
+        return profile_, is_close_friend,json_follower
 
     def most_recent(self):
         return self.get_queryset().order_by('-create_date')[:9]
@@ -70,17 +126,17 @@ class UserProfile(models.Model):
     close_friends = models.ManyToManyField(User,related_name='my_close_friends', blank=True)
     rank = models.ManyToManyField(Rank, related_name='rank', default='Newbie', blank=True)
 
-    avatar = models.ImageField(("Avatar"), upload_to='displays', default = '1.jpg',height_field=None, width_field=None, max_length=None,blank = True)
-    background =models.ImageField(("background1"), upload_to='backgrounds', default = 'ak.jpg',height_field=None, width_field=None, max_length=None,blank = True)
-    background_2 =models.ImageField(("background2"), upload_to='backgrounds', default = 'ak.jpg',height_field=None, width_field=None, max_length=None,blank = True)
-    background_3 =models.ImageField(("background3"), upload_to='backgrounds', default = 'ak.jpg',height_field=None, width_field=None, max_length=None,blank = True)
-    background_4 =models.ImageField(("background4"), upload_to='backgrounds', default = 'ak.jpg',height_field=None, width_field=None, max_length=None,blank = True)
-    background_5 =models.ImageField(("background5"), upload_to='backgrounds', default = 'ak.jpg',height_field=None, width_field=None, max_length=None,blank = True)
+    avatar = models.ImageField(("Avatar"), upload_to='displays', default = '1.jpg',height_field=None, width_field=None, max_length=None,blank = True,null=True)
+    background =models.ImageField(("background1"), upload_to='backgrounds', default = 'ak.jpg',height_field=None, width_field=None, max_length=None,blank = True,null=True)
+    background_2 =models.ImageField(("background2"), upload_to='backgrounds', default = 'ak.jpg',height_field=None, width_field=None, max_length=None,blank = True,null=True)
+    background_3 =models.ImageField(("background3"), upload_to='backgrounds', default = 'ak.jpg',height_field=None, width_field=None, max_length=None,blank = True,null=True)
+    background_4 =models.ImageField(("background4"), upload_to='backgrounds', default = 'ak.jpg',height_field=None, width_field=None, max_length=None,blank = True,null=True)
+    background_5 =models.ImageField(("background5"), upload_to='backgrounds', default = 'ak.jpg',height_field=None, width_field=None, max_length=None,blank = True,null=True)
     create_date = models.DateField(auto_now_add=True,null=True)
         
     username = models.CharField(null=True,blank=True, max_length=50)
-    displayname =models.CharField( max_length=150,blank=True)
-    bio = models.TextField(default='I like something',blank=True)
+    displayname =models.CharField( max_length=150,blank=True,null=True)
+    bio = models.CharField(("bio"), default='I like something',blank=True,max_length=255)
 
     @property
     def email_address(self):
@@ -89,6 +145,7 @@ class UserProfile(models.Model):
    
     objects = ProfileManager()
 
+    
     def __str__(self):
         return f'{self.user.username}'
     
@@ -111,7 +168,7 @@ class UserProfile(models.Model):
        
 
     def get_absolute_url(self):
-        return reverse("profiles:final_detail", kwargs={"username": self.user.username})
+        return reverse("profiles:detail", kwargs={"username": self.user.username})
 
 
 def profile_pre_save_reciever(sender,instance,*args, **kwargs):

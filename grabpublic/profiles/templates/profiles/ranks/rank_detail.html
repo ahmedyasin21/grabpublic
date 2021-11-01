@@ -1,7 +1,10 @@
+{% extends 'base_final.html' %}
 {% load static %}
-{% include 'blogs/snippets/navbar.html' %}
-{% include 'blogs/snippets/profile_pics.html' with username=user.username %}
-{% block ranked %}
+
+{% block content %}
+{% include 'theme/snippets/navbar_second.html' %}
+
+{% include 'theme/snippets/profile_pics.html' with username=user.username %}
 <style>
 .card_{
     margin-top:20px;
@@ -43,4 +46,4 @@
 	    </div>
     {% endif %}
 {% endfor %}
-{% endblock ranked %}
+{% endblock content %}

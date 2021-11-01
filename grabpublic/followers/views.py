@@ -52,8 +52,8 @@ def free_10_followers(request):
                 user.is_following.add(f1, f2, f3, f4, f5, f6, f7, f8, f9, f10)
                 user.save()
            
-            
-    return render(request,'followers/freefollowers.html',)
+                
+    return render(request,'followers/freefollowers.html', {'notify':user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4],'notify_count':user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()})
 
 
 
@@ -95,5 +95,6 @@ def free_10_followers_test(request):
                     user.save()
            
             
-    return render(request,'followers/freefollowers.html',)
+    return render(request,'followers/freefollowers.html',{'notify':user_notify.notifications.filter(deleted=False).order_by('-timestamp')[:4],'notify_count':user_notify.notifications.filter(actor_object_id=user_notify.id,deleted=False,unread=True).count()})
 
+    

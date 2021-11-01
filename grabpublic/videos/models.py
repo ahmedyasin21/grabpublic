@@ -22,7 +22,7 @@ class Video(models.Model):
         parse = urllib.parse.urlparse(self.url)
         video_id = urllib.parse.parse_qs(parse.query).get('v')
         if video_id:
-            self.youtube_id =video_id[0]
+            self.youtube_id = video_id[0]
             response = requests.get(f'https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id={video_id[0]}&key={YOUTUBE_API_KEY}')
             json = response.json()
             title = json["items"][0]["snippet"]["title"]
